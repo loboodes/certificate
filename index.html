@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>المصمم الاحترافي - النسخة العمودية</title>
+    <title>المصمم الاحترافي - النسخة المستقرة</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Alkalami&family=Amiri:ital,wght@0,400;0,700;1,400&family=Aref+Ruqaa:wght@400;700&family=Cairo:wght@400;700&family=Changa:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@400;700&family=Lateef&family=Noto+Naskh+Arabic:wght@400;700&family=Reem+Kufi:wght@400;700&family=Scheherazade+New:wght@400;700&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
     
@@ -15,13 +15,13 @@
 
     <style>
         :root {
-            --primary: #4f46e5;       /* Indigo */
+            --primary: #4f46e5;
             --primary-dark: #4338ca;
-            --bg-page: #f8fafc;       /* Slate-50 */
+            --bg-page: #f8fafc;
             --surface: #ffffff;
             --border: #e2e8f0;
             --text: #1e293b;
-            --radius: 12px;
+            --radius: 16px;
         }
 
         * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
@@ -42,13 +42,13 @@
             background: var(--surface); padding: 15px 20px; text-align: center;
             border-bottom: 1px solid var(--border);
             position: sticky; top: 0; z-index: 100;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
         }
         .brand { font-weight: 800; font-size: 1.2rem; color: var(--primary); display: flex; align-items: center; justify-content: center; gap: 8px; }
 
         /* --- الحاوية الرئيسية --- */
         .container {
-            max-width: 850px; /* عرض مناسب */
+            max-width: 850px;
             margin: 0 auto; padding: 20px; width: 100%;
             display: flex; flex-direction: column; gap: 30px;
         }
@@ -58,7 +58,7 @@
             background: var(--surface);
             border-radius: var(--radius);
             padding: 25px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
             border: 1px solid var(--border);
         }
 
@@ -85,10 +85,10 @@
             border-color: var(--primary); background: #fff; box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); 
         }
 
-        /* أزرار التحريك (Control Pad) */
+        /* أزرار التحريك الاحترافية */
         .nudge-controls {
-            display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
-            background: #f1f5f9; padding: 8px; border-radius: 12px; border: 1px solid var(--border);
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+            background: #f1f5f9; padding: 10px; border-radius: 12px; border: 1px solid var(--border);
         }
         .nudge-btn {
             background: white; border: 1px solid var(--border); border-radius: 8px;
@@ -101,12 +101,16 @@
 
         /* الأزرار العامة */
         .btn {
-            width: 100%; padding: 12px; border: none; border-radius: 10px;
+            width: 100%; padding: 14px; border: none; border-radius: 10px;
             font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
             transition: 0.2s; font-size: 0.95rem;
         }
-        .btn-primary { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: white; }
-        .btn-primary:hover { box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3); }
+        .btn-primary { 
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); 
+            color: white; box-shadow: 0 4px 10px rgba(79, 70, 229, 0.2);
+        }
+        .btn-primary:active { transform: scale(0.98); }
+        
         .btn-tool { background: #fff; border: 1px solid var(--border); color: var(--text); }
         .btn-tool:hover { background: #f1f5f9; }
 
@@ -125,13 +129,13 @@
         /* --- 2. قسم المعاينة (الأسفل) --- */
         .preview-area {
             width: 100%; display: flex; justify-content: center;
-            padding-bottom: 50px; position: relative;
+            padding-bottom: 80px; position: relative;
         }
 
         .scaler {
             transform-origin: top center; transition: transform 0.2s ease;
-            box-shadow: 0 20px 50px -10px rgba(0,0,0,0.15);
-            border: 1px solid #e2e8f0;
+            box-shadow: 0 20px 60px -10px rgba(0,0,0,0.2);
+            border: 1px solid #e2e8f0; border-radius: 8px;
         }
 
         .certificate {
@@ -152,7 +156,7 @@
 
         /* لودر */
         #loader {
-            position: fixed; inset: 0; background: rgba(255,255,255,0.9);
+            position: fixed; inset: 0; background: rgba(255,255,255,0.95);
             z-index: 2000; display: none; flex-direction: column;
             justify-content: center; align-items: center;
         }
@@ -185,7 +189,7 @@
             
             <div class="grid-inputs">
                 <div>
-                    <label>المسمى الوظيفي (قابل للتعديل)</label>
+                    <label>مسمى المدير (قابل للتعديل)</label>
                     <input type="text" value="مدير المدرسة" oninput="updateText('el-mgr-title', this.value)">
                 </div>
                 <div>
@@ -199,6 +203,7 @@
             </div>
 
             <div class="section-header"><i class="ph ph-paint-brush-broad"></i> التنسيق والخطوط</div>
+            
             <div class="grid-inputs">
                 <div style="grid-column: span 2;">
                     <label>العنصر المحدد</label>
@@ -229,7 +234,7 @@
                     </select>
                 </div>
                 <div>
-                    <label>تحريك دقيق</label>
+                    <label>تحريك العنصر</label>
                     <div class="nudge-controls">
                         <button class="nudge-btn" onclick="move(0,-10)"><i class="ph ph-arrow-up"></i></button>
                         <button class="nudge-btn" onclick="move(0,10)"><i class="ph ph-arrow-down"></i></button>
@@ -253,13 +258,13 @@
                 </div>
                 <div style="width: 80px;">
                     <label>سمك</label>
-                    <button class="btn btn-tool" onclick="toggleBold()" style="height:46px;"><b>B</b></button>
+                    <button class="btn btn-tool" onclick="toggleBold()" style="height:46px; width:100%;"><b>B</b></button>
                 </div>
             </div>
 
             <div class="section-header"><i class="ph ph-image-square"></i> الخلفية</div>
             <div style="margin-bottom:15px;">
-                <label>نمط العرض (لحل مشكلة التمدد)</label>
+                <label>نمط العرض</label>
                 <select onchange="changeBgSize(this.value)">
                     <option value="100% 100%">تمدد كامل (Fill)</option>
                     <option value="cover">ملء طبيعي (Cover)</option>
@@ -313,7 +318,7 @@
         const scaler = document.getElementById('scaler');
         const cert = document.getElementById('cert');
 
-        // === 1. التحجيم التلقائي ===
+        // === 1. التحجيم الذكي ===
         function fitToWidth() {
             const containerWidth = previewArea.clientWidth; 
             const certWidth = 1123;
@@ -344,11 +349,10 @@
             document.getElementById('inpSize').value = parseInt(st.fontSize);
             document.getElementById('inpColor').value = rgbToHex(st.color);
             
-            // تحديد الخط الحالي في القائمة
+            // تحديد الخط الحالي
             const currentFont = st.fontFamily.replace(/"/g, '');
             const fontSelect = document.getElementById('fontSelect');
             for(let i=0; i<fontSelect.options.length; i++){
-                // مقارنة بسيطة لاسم الخط
                 if(currentFont.includes(fontSelect.options[i].value.split(',')[0].replace(/'/g, ''))) {
                     fontSelect.selectedIndex = i;
                     break;
@@ -408,7 +412,7 @@
             } catch (e) {}
         }
 
-        // === 4. الطباعة (Excel/PDF) ===
+        // === 4. الطباعة (إصلاح مشكلة التداخل) ===
         function handleExcel(inp) {
             const reader = new FileReader();
             reader.onload = (e) => {
@@ -434,10 +438,25 @@
         async function genPDF(name) {
             const sel = document.querySelector('.selected');
             if(sel) sel.classList.remove('selected');
+            
+            // --- الإصلاح الرئيسي لمشكلة التداخل ---
+            // 1. حفظ التحجيم الحالي
+            const originalTransform = scaler.style.transform;
+            
+            // 2. إلغاء التحجيم لتظهر الشهادة بحجمها الكامل
+            scaler.style.transform = 'none';
+            
+            // 3. التقاط الصورة
             const canvas = await html2canvas(cert, { scale: 2, useCORS: true, backgroundColor: null });
+            
+            // 4. استعادة التحجيم
+            scaler.style.transform = originalTransform;
+            
+            // 5. إنشاء الـ PDF
             const pdf = new window.jspdf.jsPDF('l', 'mm', 'a4');
             pdf.addImage(canvas.toDataURL('image/jpeg', 0.95), 'JPEG', 0, 0, 297, 210);
             pdf.save(name);
+            
             if(sel) sel.classList.add('selected');
         }
 
