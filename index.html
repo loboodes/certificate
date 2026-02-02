@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منشئ الشهادات المتقدم - GitHub Edition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <style>
+        :root {
+            --primary: #195d48;
+            --secondary: #d4af37;
+            --bg-light: #f4f6f9;
+            --text: #333;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: var(--bg-light);
+            color: var(--text);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 20px;
+        }
+
+        /* --- لوحة التحكم الجانبية --- */
+        .sidebar {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            height: fit-content;
+        }
+
+        .sidebar h2 { font-size: 1.2rem; margin-bottom: 15px; color: var(--primary); border-bottom: 2px solid #eee; padding-bottom: 10px; }
+
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.9rem; }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-family: 'Cairo', sans-serif;
+        }
+        
+        /* شبكة اختيار الخلفيات */
+        .bg-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        .bg-option {
+            aspect-ratio: 1.41; /* A4 Ratio */
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            background-size: cover;
+            background-position: center;
+            transition: all 0.2s;
+        }
+        .bg-option:hover { border-color: var(--primary); }
+        .bg-option.selected { border-color: var(--secondary); box-shadow: 0 0 0 2px var(--secondary); }
+
+        /* منطقة رفع الملف */
+        .upload-area {
+            border: 2px dashed #ccc;
+            padding: 20px;
+            text-align: center;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .upload-area:hover { border-color: var(--primary); background: #f0fdf4; }
+
+        /* --- منطقة المعاينة --- */
+        .preview-area {
+            background: #ccc;
+            border-radius: 12px;
+            padding: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            overflow: auto;
+            min-height: 80vh;
+        }
+
+        /* حاوية الشهادة (A4 Landscape) */
+        .certificate-container {
+            width: 1123px; /* A4 width at 96 DPI approx */
+            height: 794px; /* A4 height */
+            background-color: white;
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transform-origin: top center;
+            transition: transform 0.2s;
+        }
+
+        /* نصوص الشهادة */
+        .cert-content {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding-top: 240px; /* مسافة من الأعلى لتجاوز ترويسة التصميم */
+        }
+
+        .cert-intro { font-size: 24px; margin-bottom: 10px; color: #444; }
+        .cert-name { 
+            font-family: 'Amiri', serif; 
+            font-size: 55px; 
+            font-weight: bold; 
+            color: var(--primary); 
+            margin: 15px 0;
+            line-height: 1.2;
+        }
+        .cert-body { 
+            font-size: 26px; 
+            width: 80%; 
+            line-height: 1.6; 
+            color: #333; 
+            margin-bottom: 40px;
+        }
+        
+        .footer-section {
+            position: absolute;
+            bottom: 60px;
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            padding: 0 100px;
+        }
+
+        .signature { text-align: center; }
+        .sig-title { font-weight: bold; font-size: 24px; color: #555; margin-bottom: 10px; }
+        .sig-name { font-size: 28px; font-weight: bold; color: var(--primary); font-family: 'Amiri', serif; }
+
+        .btn-action {
+            width: 100%;
+            padding: 12px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .btn-action:disabled { background: #ccc; cursor: not-allowed; }
+        .btn-action:hover:not(:disabled) { background: #144a39; }
+
+        /* شريط التقدم */
+        .progress-box { display: none; margin-top: 15px; }
+        .progress-bar { height: 10px; background: #eee; border-radius: 5px; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--secondary); width: 0%; transition: width 0.3s; }
+        .status-text { font-size: 0.9rem; text-align: center; margin-top: 5px; }
+
+        @media (max-width: 1200px) {
+            .container { grid-template-columns: 1fr; }
+            .certificate-container { transform: scale(0.6); margin-bottom: -300px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="sidebar">
+        <h2>1. استيراد الأسماء (Excel)</h2>
+        <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+            <p>📂 اضغط لرفع ملف Excel</p>
+            <input type="file" id="fileInput" accept=".xlsx,.xls" hidden>
+        </div>
+        <div id="fileInfo" style="font-size: 0.9rem; color: green; display: none; margin-bottom: 10px;"></div>
+
+        <h2>2. اختر التصميم</h2>
+        <div class="bg-grid" id="bgGrid">
+            </div>
+
+        <h2>3. بيانات الشهادة</h2>
+        <div class="form-group">
+            <label>المقدمة (الجهة المانحة)</label>
+            <input type="text" id="inIntro" value="يسر إدارة مدرسة تحفيظ القرآن بالبجادية" class="live-update">
+        </div>
+        <div class="form-group">
+            <label>نص الشكر والسبب</label>
+            <textarea id="inBody" rows="3" class="live-update">أن تتقدم بوافر الشكر والتقدير لتفوقه في جميع المواد الدراسية خلال الفصل الدراسي الأول لعام ١٤٤٧ هـ</textarea>
+        </div>
+        <div class="form-group">
+            <label>المسمى الوظيفي للموقع</label>
+            <input type="text" id="inSigTitle" value="مدير المدرسة" class="live-update">
+        </div>
+        <div class="form-group">
+            <label>اسم الموقع (المدير/المعلم)</label>
+            <input type="text" id="inManager" value="أ. محمد بن عبدالله" class="live-update">
+        </div>
+
+        <h2>4. التصدير</h2>
+        <div class="form-group">
+            <label>عمود اسم الطالب (من ملف Excel)</label>
+            <select id="colSelect"><option>الرجاء رفع الملف أولاً</option></select>
+        </div>
+        <button id="btnGenerate" class="btn-action" onclick="generateAllPDFs()" disabled>🖨️ طباعة الشهادات (PDF)</button>
+
+        <div class="progress-box" id="progressBox">
+            <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+            <div class="status-text" id="statusText">جاري التجهيز...</div>
+        </div>
+    </div>
+
+    <div class="preview-area">
+        <div class="certificate-container" id="certPreview">
+            <div class="cert-content">
+                <div class="cert-intro" id="outIntro">يسر إدارة مدرسة...</div>
+                <div class="cert-intro" style="margin-top:5px; font-size: 20px;">أن تمنح هذه الشهادة للطالب/ـة:</div>
+                <div class="cert-name" id="outName">اسم الطالب هنا</div>
+                <div class="cert-body" id="outBody">نص الشكر والتقدير سيظهر هنا...</div>
+            </div>
+            
+            <div class="footer-section">
+                <div class="signature">
+                    <div class="sig-title">الختم</div>
+                    <div style="width: 120px; height: 120px; border: 2px dashed #ccc; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #ccc;">مكان الختم</div>
+                </div>
+                <div class="signature">
+                    <div class="sig-title" id="outSigTitle">مدير المدرسة</div>
+                    <div class="sig-name" id="outManager">الاسم هنا</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="hidden-container" style="position: absolute; left: -9999px; top: 0;"></div>
+
+<script>
+    let excelData = [];
+    let selectedBg = 'bg1.png'; // الصورة الافتراضية
+
+    // 1. تهيئة الصور المصغرة
+    const bgGrid = document.getElementById('bgGrid');
+    for (let i = 1; i <= 12; i++) {
+        const div = document.createElement('div');
+        div.className = `bg-option ${i === 1 ? 'selected' : ''}`;
+        const imgName = `bg${i}.png`;
+        div.style.backgroundImage = `url('${imgName}')`;
+        div.onclick = () => selectBackground(div, imgName);
+        bgGrid.appendChild(div);
+    }
+
+    function selectBackground(el, imgName) {
+        document.querySelectorAll('.bg-option').forEach(d => d.classList.remove('selected'));
+        el.classList.add('selected');
+        selectedBg = imgName;
+        document.getElementById('certPreview').style.backgroundImage = `url('${imgName}')`;
+    }
+
+    // تعيين الخلفية الافتراضية عند التحميل
+    document.getElementById('certPreview').style.backgroundImage = `url('${selectedBg}')`;
+
+    // 2. التحديث المباشر للنصوص (Live Update)
+    const inputs = document.querySelectorAll('.live-update');
+    inputs.forEach(input => {
+        input.addEventListener('input', updatePreview);
+    });
+
+    function updatePreview() {
+        document.getElementById('outIntro').textContent = document.getElementById('inIntro').value;
+        document.getElementById('outBody').textContent = document.getElementById('inBody').value;
+        document.getElementById('outSigTitle').textContent = document.getElementById('inSigTitle').value;
+        document.getElementById('outManager').textContent = document.getElementById('inManager').value;
+    }
+
+    // 3. معالجة ملف Excel
+    document.getElementById('fileInput').addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+            const sheet = workbook.Sheets[workbook.SheetNames[0]];
+            const json = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+
+            if (json.length < 2) {
+                alert("الملف فارغ أو لا يحتوي بيانات كافية");
+                return;
+            }
+
+            // تخزين البيانات ومعالجة الرؤوس
+            const headers = json[0];
+            excelData = json.slice(1); // البيانات بدون الرأس
+
+            // تعبئة قائمة الأعمدة
+            const colSelect = document.getElementById('colSelect');
+            colSelect.innerHTML = '';
+            headers.forEach((h, i) => {
+                const opt = document.createElement('option');
+                opt.value = i;
+                opt.text = h || `عمود ${i+1}`;
+                if (h && h.includes('اسم')) opt.selected = true; // اختيار ذكي
+                colSelect.appendChild(opt);
+            });
+
+            document.getElementById('fileInfo').textContent = `تم تحميل ${excelData.length} سجل بنجاح ✅`;
+            document.getElementById('fileInfo').style.display = 'block';
+            document.getElementById('btnGenerate').disabled = false;
+        };
+        reader.readAsArrayBuffer(file);
+    });
+
+    // 4. توليد ملفات PDF (الجزء الأهم)
+    async function generateAllPDFs() {
+        const { jsPDF } = window.jspdf;
+        const btn = document.getElementById('btnGenerate');
+        const progressBox = document.getElementById('progressBox');
+        const progressFill = document.getElementById('progressFill');
+        const statusText = document.getElementById('statusText');
+        const hiddenContainer = document.getElementById('hidden-container');
+        const nameColIndex = document.getElementById('colSelect').value;
+
+        // قفل الزر
+        btn.disabled = true;
+        progressBox.style.display = 'block';
+
+        // نسخ القالب الحالي إلى الحاوية المخفية للريندر
+        // ملاحظة: نستخدم نسخة طبق الأصل لضمان الأبعاد
+        const templateHTML = document.getElementById('certPreview').outerHTML;
+
+        for (let i = 0; i < excelData.length; i++) {
+            const row = excelData[i];
+            const studentName = row[nameColIndex];
+
+            if (!studentName) continue;
+
+            // تحديث الواجهة
+            const percent = Math.round(((i + 1) / excelData.length) * 100);
+            progressFill.style.width = `${percent}%`;
+            statusText.textContent = `جاري استخراج شهادة: ${studentName} (${i+1}/${excelData.length})`;
+
+            // وضع القالب في الحاوية المخفية وتحديث الاسم
+            hiddenContainer.innerHTML = templateHTML;
+            const hiddenCert = hiddenContainer.querySelector('.certificate-container');
+            hiddenCert.id = "temp-cert"; // تغيير الـ ID لتجنب التعارض
+            hiddenCert.style.transform = "none"; // إلغاء التصغير
+            
+            // تحديث البيانات داخل النسخة المخفية
+            hiddenCert.querySelector('#outName').textContent = studentName;
+            // يمكن هنا إضافة منطق لاستخراج "السبب" من ملف الإكسل إذا وجد عمود مخصص
+
+            // انتظار تحميل الصورة (مهم جداً للصور المحلية)
+            await new Promise(resolve => setTimeout(resolve, 50));
+
+            // تحويل HTML إلى Canvas
+            const canvas = await html2canvas(hiddenCert, {
+                scale: 2, // دقة أعلى
+                useCORS: true,
+                allowTaint: true
+            });
+
+            // تحويل Canvas إلى PDF
+            const pdf = new jsPDF('l', 'mm', 'a4'); // Landscape A4
+            const imgData = canvas.toDataURL('image/jpeg', 0.9);
+            pdf.addImage(imgData, 'JPEG', 0, 0, 297, 210);
+            
+            // حفظ الملف
+            pdf.save(`شهادة_${studentName.replace(/\s/g, '_')}.pdf`);
+        }
+
+        // إنهاء
+        statusText.textContent = "✅ تم الانتهاء من جميع الشهادات!";
+        btn.disabled = false;
+        setTimeout(() => {
+             progressBox.style.display = 'none';
+             hiddenContainer.innerHTML = '';
+        }, 3000);
+    }
+</script>
+
+</body>
+</html>
