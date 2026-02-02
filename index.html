@@ -3,24 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>مصمم الشهادات الشامل</title>
+    <title>المصمم الاحترافي - النسخة العمودية</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Alkalami&family=Amiri:ital,wght@0,400;0,700;1,400&family=Aref+Ruqaa:wght@400;700&family=Cairo:wght@400;700&family=Changa:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@400;700&family=Lateef&family=Noto+Naskh+Arabic:wght@400;700&family=Reem+Kufi:wght@400;700&family=Scheherazade+New:wght@400;700&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
     
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <style>
         :root {
-            --primary: #4f46e5;
+            --primary: #4f46e5;       /* Indigo */
+            --primary-dark: #4338ca;
+            --bg-page: #f8fafc;       /* Slate-50 */
             --surface: #ffffff;
-            --bg: #f8fafc;
             --border: #e2e8f0;
-            --text: #334155;
-            --radius: 16px;
+            --text: #1e293b;
+            --radius: 12px;
         }
 
         * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
@@ -28,8 +29,9 @@
         body {
             margin: 0; padding: 0;
             font-family: 'Tajawal', sans-serif;
-            background-color: var(--bg);
+            background-color: var(--bg-page);
             color: var(--text);
+            /* تفعيل التمرير العمودي */
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -37,28 +39,22 @@
 
         /* --- الهيدر --- */
         header {
-            background: var(--surface);
-            padding: 15px 20px;
-            text-align: center;
+            background: var(--surface); padding: 15px 20px; text-align: center;
             border-bottom: 1px solid var(--border);
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
             position: sticky; top: 0; z-index: 100;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
         .brand { font-weight: 800; font-size: 1.2rem; color: var(--primary); display: flex; align-items: center; justify-content: center; gap: 8px; }
 
         /* --- الحاوية الرئيسية --- */
         .container {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 20px;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            gap: 30px;
+            max-width: 850px; /* عرض مناسب */
+            margin: 0 auto; padding: 20px; width: 100%;
+            display: flex; flex-direction: column; gap: 30px;
         }
 
-        /* --- 1. قسم الأدوات --- */
-        .tools-section {
+        /* --- 1. قسم الأدوات (الأعلى) --- */
+        .tools-card {
             background: var(--surface);
             border-radius: var(--radius);
             padding: 25px;
@@ -67,72 +63,81 @@
         }
 
         .section-header {
-            font-weight: 700; margin-bottom: 15px; color: #1e293b;
-            display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px;
-            margin-top: 15px;
+            font-weight: 700; margin-bottom: 15px; color: #334155;
+            display: flex; align-items: center; gap: 8px;
+            border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; margin-top: 20px;
         }
         .section-header:first-child { margin-top: 0; }
 
         .grid-inputs {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;
-            margin-bottom: 10px;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px;
+            margin-bottom: 15px;
         }
 
-        label { font-size: 0.85rem; font-weight: 600; color: #64748b; margin-bottom: 5px; display: block; }
+        label { display: block; font-size: 0.85rem; font-weight: 600; color: #64748b; margin-bottom: 6px; }
 
-        input, select {
+        input, select, textarea {
             width: 100%; padding: 12px; border: 1px solid var(--border);
             border-radius: 10px; font-family: inherit; font-size: 0.95rem;
-            background: #f8fafc; transition: 0.2s;
+            background: #f8fafc; transition: 0.2s; color: var(--text);
         }
-        input:focus, select:focus { border-color: var(--primary); background: #fff; }
+        input:focus, select:focus, textarea:focus { 
+            border-color: var(--primary); background: #fff; box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); 
+        }
 
-        /* أزرار التحكم */
-        .controls-row {
-            display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 20px;
+        /* أزرار التحريك (Control Pad) */
+        .nudge-controls {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
+            background: #f1f5f9; padding: 8px; border-radius: 12px; border: 1px solid var(--border);
         }
-        
+        .nudge-btn {
+            background: white; border: 1px solid var(--border); border-radius: 8px;
+            cursor: pointer; height: 40px; display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem; color: #475569; transition: 0.1s;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+        .nudge-btn:active { transform: translateY(2px); background: #f8fafc; box-shadow: none; }
+        .nudge-btn:hover { color: var(--primary); border-color: var(--primary); }
+
+        /* الأزرار العامة */
         .btn {
-            padding: 12px 20px; border: none; border-radius: 10px;
+            width: 100%; padding: 12px; border: none; border-radius: 10px;
             font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
-            transition: 0.2s; flex: 1; min-width: 120px;
+            transition: 0.2s; font-size: 0.95rem;
         }
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-primary:hover { background: #4338ca; }
-        .btn-tool { background: #f1f5f9; color: var(--text); border: 1px solid var(--border); padding: 10px; }
-        .btn-tool:hover { background: #e2e8f0; }
+        .btn-primary { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: white; }
+        .btn-primary:hover { box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3); }
+        .btn-tool { background: #fff; border: 1px solid var(--border); color: var(--text); }
+        .btn-tool:hover { background: #f1f5f9; }
 
-        .color-picker-wrapper {
-            display: flex; align-items: center; gap: 5px; background: #f1f5f9;
-            padding: 5px 10px; border-radius: 10px; border: 1px solid var(--border);
-        }
-        input[type="color"] { width: 30px; height: 30px; padding: 0; border: none; background: none; cursor: pointer; }
+        /* منتقي الألوان */
+        .color-row { display: flex; gap: 10px; align-items: flex-end; }
+        input[type="color"] { height: 45px; padding: 2px; cursor: pointer; }
 
         /* شبكة الخلفيات */
-        .bg-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 8px; }
-        .bg-thumb {
-            aspect-ratio: 1.4; border-radius: 6px; cursor: pointer;
+        .bg-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 10px; }
+        .bg-item {
+            aspect-ratio: 1.4; border-radius: 8px; cursor: pointer;
             background-size: cover; border: 2px solid transparent; transition: 0.2s;
         }
-        .bg-thumb.active { border-color: var(--primary); transform: scale(1.1); box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2); }
+        .bg-item.active { border-color: var(--primary); transform: scale(1.05); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2); }
 
-        /* --- 2. قسم المعاينة --- */
-        .preview-section {
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            position: relative;
+        /* --- 2. قسم المعاينة (الأسفل) --- */
+        .preview-area {
+            width: 100%; display: flex; justify-content: center;
+            padding-bottom: 50px; position: relative;
         }
 
-        .scaler-wrapper {
-            transform-origin: top center;
-            transition: transform 0.2s ease;
-            box-shadow: 0 20px 50px -12px rgba(0,0,0,0.25);
+        .scaler {
+            transform-origin: top center; transition: transform 0.2s ease;
+            box-shadow: 0 20px 50px -10px rgba(0,0,0,0.15);
+            border: 1px solid #e2e8f0;
         }
 
         .certificate {
             width: 1123px; height: 794px; /* A4 Landscape */
             background: white; position: relative; overflow: hidden;
+            background-repeat: no-repeat; background-position: center;
             user-select: none;
         }
 
@@ -145,13 +150,13 @@
             border-color: var(--primary); background: rgba(79, 70, 229, 0.05);
         }
 
-        /* شاشة التحميل */
+        /* لودر */
         #loader {
-            position: fixed; inset: 0; background: rgba(255,255,255,0.95);
-            z-index: 999; display: none; flex-direction: column;
+            position: fixed; inset: 0; background: rgba(255,255,255,0.9);
+            z-index: 2000; display: none; flex-direction: column;
             justify-content: center; align-items: center;
         }
-        .spinner { font-size: 2.5rem; color: var(--primary); animation: spin 1s infinite linear; }
+        .spinner { font-size: 3rem; color: var(--primary); animation: spin 1s infinite linear; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
     </style>
@@ -159,112 +164,146 @@
 <body>
 
     <header>
-        <div class="brand">
-            <i class="ph ph-certificate"></i>
-            المصمم الذكي
-        </div>
+        <div class="brand"><i class="ph ph-certificate"></i> المصمم الذكي</div>
     </header>
 
     <div class="container">
         
-        <section class="tools-section">
+        <div class="tools-card">
             
-            <div class="section-header"><i class="ph ph-pencil-simple-line"></i> نصوص الشهادة</div>
+            <div class="section-header"><i class="ph ph-pencil-simple-line"></i> البيانات والنصوص</div>
             <div class="grid-inputs">
-                <div>
-                    <label>مقدمة الشهادة</label>
-                    <input type="text" value="يسر إدارة المدرسة تكريم" oninput="updateText('el-intro', this.value)">
-                </div>
                 <div>
                     <label>اسم الطالب (الافتراضي)</label>
                     <input type="text" id="inpName" value="خالد بن فهد العتيبي" oninput="updateText('el-name', this.value)">
                 </div>
-                <div style="grid-column: 1 / -1;">
-                    <label>نص الشكر / السبب</label>
-                    <input type="text" value="لتميزه وتفوقه في جميع المواد الدراسية" oninput="updateText('el-body', this.value)">
-                </div>
-            </div>
-
-            <div class="section-header"><i class="ph ph-signature"></i> التوقيع والمدير</div>
-            <div class="grid-inputs">
                 <div>
-                    <label>المسمى الوظيفي</label>
-                    <input type="text" value="مدير المدرسة" oninput="updateText('el-mgr-title', this.value)">
-                </div>
-                <div>
-                    <label>اسم المدير</label>
-                    <input type="text" value="أ. محمد بن عبدالله" oninput="updateText('el-mgr-name', this.value)">
+                    <label>نص الشهادة</label>
+                    <textarea rows="1" oninput="updateText('el-body', this.value)">لتفوقه الدراسي وتميزه في جميع المواد</textarea>
                 </div>
             </div>
             
-            <div class="section-header"><i class="ph ph-paint-brush"></i> التنسيق والتحريك</div>
-            <div class="controls-row">
-                <select id="elSelect" onchange="selectElement(this.value)" style="flex: 2;">
-                    <option value="el-name">🔹 اسم الطالب</option>
-                    <option value="el-intro">🔹 مقدمة الشهادة</option>
-                    <option value="el-body">🔹 نص الشكر</option>
-                    <option value="el-mgr-title">🔹 مسمى المدير</option>
-                    <option value="el-mgr-name">🔹 اسم المدير</option>
-                </select>
-                
-                <button class="btn btn-tool" onclick="move(0,-10)"><i class="ph ph-arrow-up"></i></button>
-                <button class="btn btn-tool" onclick="move(0,10)"><i class="ph ph-arrow-down"></i></button>
-                <button class="btn btn-tool" onclick="move(10,0)"><i class="ph ph-arrow-left"></i></button>
-                <button class="btn btn-tool" onclick="move(-10,0)"><i class="ph ph-arrow-right"></i></button>
+            <div class="grid-inputs">
+                <div>
+                    <label>المسمى الوظيفي (قابل للتعديل)</label>
+                    <input type="text" value="مدير المدرسة" oninput="updateText('el-mgr-title', this.value)">
+                </div>
+                <div>
+                    <label>اسم المسؤول / المدير</label>
+                    <input type="text" value="أ. محمد بن عبدالله" oninput="updateText('el-mgr-name', this.value)">
+                </div>
+                <div>
+                    <label>مقدمة الشهادة</label>
+                    <input type="text" value="يسر إدارة المدرسة تكريم" oninput="updateText('el-intro', this.value)">
+                </div>
             </div>
 
-            <div class="controls-row">
-                <div class="color-picker-wrapper">
-                    <input type="color" id="inpColor" oninput="applyStyle('color', this.value)">
-                    <i class="ph ph-eyedropper" onclick="pickColor()" style="cursor: pointer; color: #666;" title="التقاط لون"></i>
+            <div class="section-header"><i class="ph ph-paint-brush-broad"></i> التنسيق والخطوط</div>
+            <div class="grid-inputs">
+                <div style="grid-column: span 2;">
+                    <label>العنصر المحدد</label>
+                    <select id="elSelect" onchange="selectElement(this.value)">
+                        <option value="el-name">🔹 اسم الطالب</option>
+                        <option value="el-body">🔹 نص الشهادة</option>
+                        <option value="el-mgr-name">🔹 اسم المدير</option>
+                        <option value="el-mgr-title">🔹 مسمى المدير</option>
+                        <option value="el-intro">🔹 المقدمة</option>
+                    </select>
                 </div>
-                
-                <input type="number" id="inpSize" placeholder="حجم الخط" style="width: 80px;" onchange="applyStyle('fontSize', this.value+'px')">
-                <button class="btn btn-tool" onclick="toggleBold()"><i class="ph ph-text-b"></i></button>
+            </div>
+
+            <div class="grid-inputs">
+                <div>
+                    <label>نوع الخط (10 خطوط فاخرة)</label>
+                    <select id="fontSelect" onchange="changeFont(this.value)" style="font-family: inherit;">
+                        <option value="'Tajawal', sans-serif">تجوال (عصري)</option>
+                        <option value="'Amiri', serif">أميري (نسخ كلاسيكي)</option>
+                        <option value="'Aref Ruqaa', serif">عارف رقعة (رقعة)</option>
+                        <option value="'Reem Kufi', sans-serif">ريم كوفي (كوفي)</option>
+                        <option value="'Cairo', sans-serif">كايرو (هندسي)</option>
+                        <option value="'Changa', sans-serif">شانجا (عريض)</option>
+                        <option value="'Scheherazade New', serif">شهرزاد (تراثي)</option>
+                        <option value="'Lateef', serif">لطيف (ناعم)</option>
+                        <option value="'Alkalami', serif">القلمي (يدوي)</option>
+                        <option value="'Noto Naskh Arabic', serif">نوتو نسخ (رسمي)</option>
+                    </select>
+                </div>
+                <div>
+                    <label>تحريك دقيق</label>
+                    <div class="nudge-controls">
+                        <button class="nudge-btn" onclick="move(0,-10)"><i class="ph ph-arrow-up"></i></button>
+                        <button class="nudge-btn" onclick="move(0,10)"><i class="ph ph-arrow-down"></i></button>
+                        <button class="nudge-btn" onclick="move(10,0)"><i class="ph ph-arrow-left"></i></button>
+                        <button class="nudge-btn" onclick="move(-10,0)"><i class="ph ph-arrow-right"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="color-row">
+                <div style="flex:1;">
+                    <label>لون الخط</label>
+                    <div style="display:flex; gap:5px;">
+                        <input type="color" id="inpColor" oninput="applyStyle('color', this.value)" style="flex:1;">
+                        <button class="btn btn-tool" onclick="pickColor()" style="width:auto; padding:0 15px;" title="قطارة"><i class="ph ph-eyedropper"></i></button>
+                    </div>
+                </div>
+                <div style="width: 100px;">
+                    <label>الحجم</label>
+                    <input type="number" id="inpSize" onchange="applyStyle('fontSize', this.value+'px')">
+                </div>
+                <div style="width: 80px;">
+                    <label>سمك</label>
+                    <button class="btn btn-tool" onclick="toggleBold()" style="height:46px;"><b>B</b></button>
+                </div>
             </div>
 
             <div class="section-header"><i class="ph ph-image-square"></i> الخلفية</div>
+            <div style="margin-bottom:15px;">
+                <label>نمط العرض (لحل مشكلة التمدد)</label>
+                <select onchange="changeBgSize(this.value)">
+                    <option value="100% 100%">تمدد كامل (Fill)</option>
+                    <option value="cover">ملء طبيعي (Cover)</option>
+                    <option value="contain">احتواء (Contain)</option>
+                </select>
+            </div>
             <div class="bg-grid" id="bgGrid"></div>
 
-            <div style="margin-top: 25px; padding-top: 20px; border-top: 1px solid #f1f5f9;">
-                <label style="margin-bottom: 10px;">استيراد ملف Excel (للطباعة الجماعية)</label>
-                <div class="controls-row">
-                    <input type="file" accept=".xlsx" onchange="handleExcel(this)" style="background: white;">
-                    <select id="colSelect" style="display:none;"></select>
+            <div class="section-header"><i class="ph ph-printer"></i> الطباعة والتصدير</div>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <div style="flex: 1; min-width: 200px;">
+                    <input type="file" accept=".xlsx" onchange="handleExcel(this)" style="background:white;">
+                    <select id="colSelect" style="display:none; margin-top:5px;"></select>
                 </div>
-                <div class="controls-row">
-                    <button class="btn btn-primary" onclick="printOne()"><i class="ph ph-printer"></i> طباعة (PDF)</button>
-                    <button class="btn btn-primary" style="background:#10b981;" id="btnMass" disabled onclick="printMass()">
-                        <i class="ph ph-files"></i> طباعة الكل
-                    </button>
-                </div>
+                <button class="btn btn-primary" style="flex:1; min-width: 140px;" onclick="printOne()">
+                    <i class="ph ph-file-pdf"></i> حفظ الحالية
+                </button>
+                <button class="btn btn-primary" style="flex:1; min-width: 140px; background: #059669;" id="btnMass" disabled onclick="printMass()">
+                    <i class="ph ph-files"></i> طباعة الكل
+                </button>
             </div>
 
-        </section>
+        </div>
 
-        <section class="preview-section" id="previewArea">
-            <div class="scaler-wrapper" id="scaler">
+        <div class="preview-area" id="previewArea">
+            <div class="scaler" id="scaler">
                 <div class="certificate" id="cert">
                     
                     <div id="el-intro" class="drag-el" style="top:220px; font-size:24px; color:#64748b;">يسر إدارة المدرسة تكريم</div>
                     
                     <div id="el-name" class="drag-el" style="top:270px; font-size:60px; font-family:'Amiri'; color:#4f46e5; font-weight:700;">خالد بن فهد العتيبي</div>
                     
-                    <div id="el-body" class="drag-el" style="top:380px; font-size:30px; padding:0 120px; color:#334151;">لتميزه وتفوقه في جميع المواد الدراسية</div>
+                    <div id="el-body" class="drag-el" style="top:380px; font-size:30px; padding:0 120px; color:#334151;">لتفوقه الدراسي وتميزه في جميع المواد</div>
                     
                     <div id="el-mgr-title" class="drag-el" style="bottom:130px; left:100px; width:300px; font-size:24px; color:#64748b;">مدير المدرسة</div>
                     <div id="el-mgr-name" class="drag-el" style="bottom:90px; left:100px; width:300px; font-size:28px; font-weight:700;">أ. محمد بن عبدالله</div>
 
                 </div>
             </div>
-        </section>
+        </div>
 
     </div>
 
-    <div id="loader">
-        <i class="ph ph-spinner spinner"></i>
-        <h3>جاري المعالجة...</h3>
-    </div>
+    <div id="loader"><i class="ph ph-spinner spinner"></i><h3>جاري المعالجة...</h3></div>
 
     <script>
         // === المتغيرات ===
@@ -274,7 +313,7 @@
         const scaler = document.getElementById('scaler');
         const cert = document.getElementById('cert');
 
-        // === 1. التحجيم الذكي ===
+        // === 1. التحجيم التلقائي ===
         function fitToWidth() {
             const containerWidth = previewArea.clientWidth; 
             const certWidth = 1123;
@@ -304,15 +343,26 @@
             const st = window.getComputedStyle(el);
             document.getElementById('inpSize').value = parseInt(st.fontSize);
             document.getElementById('inpColor').value = rgbToHex(st.color);
+            
+            // تحديد الخط الحالي في القائمة
+            const currentFont = st.fontFamily.replace(/"/g, '');
+            const fontSelect = document.getElementById('fontSelect');
+            for(let i=0; i<fontSelect.options.length; i++){
+                // مقارنة بسيطة لاسم الخط
+                if(currentFont.includes(fontSelect.options[i].value.split(',')[0].replace(/'/g, ''))) {
+                    fontSelect.selectedIndex = i;
+                    break;
+                }
+            }
         }
 
-        function updateText(id, val) { 
-            const el = document.getElementById(id);
-            if(el) el.innerText = val; 
-        }
-        
+        function updateText(id, val) { document.getElementById(id).innerText = val; }
         function applyStyle(prop, val) { document.getElementById(activeId).style[prop] = val; }
         
+        function changeFont(fontName) {
+            document.getElementById(activeId).style.fontFamily = fontName;
+        }
+
         function toggleBold() {
             const el = document.getElementById(activeId);
             el.style.fontWeight = (el.style.fontWeight === 'bold' || el.style.fontWeight === '700') ? '400' : '700';
@@ -324,35 +374,23 @@
             const m = new WebKitCSSMatrix(st.transform);
             el.style.transform = `translate(${m.m41 + x}px, ${m.m42 + y}px)`;
         }
+        
+        function changeBgSize(val) { cert.style.backgroundSize = val; }
 
         document.querySelectorAll('.drag-el').forEach(el => {
             el.addEventListener('mousedown', (e) => selectElement(e.target.id));
             el.addEventListener('touchstart', (e) => selectElement(e.target.id), {passive: true});
         });
 
-        // === 3. القطارة ===
-        async function pickColor() {
-            if (!window.EyeDropper) {
-                document.getElementById('inpColor').click();
-                return;
-            }
-            try {
-                const ed = new EyeDropper();
-                const res = await ed.open();
-                document.getElementById('inpColor').value = res.sRGBHex;
-                applyStyle('color', res.sRGBHex);
-            } catch (e) {}
-        }
-
-        // === 4. الخلفيات ===
+        // === 3. الخلفيات والقطارة ===
         function initBackgrounds() {
             const grid = document.getElementById('bgGrid');
             for(let i=1; i<=12; i++) {
                 const d = document.createElement('div');
-                d.className = 'bg-thumb';
+                d.className = 'bg-item';
                 d.style.backgroundImage = `url('bg${i}.png')`;
                 d.onclick = () => {
-                    document.querySelectorAll('.bg-thumb').forEach(x => x.classList.remove('active'));
+                    document.querySelectorAll('.bg-item').forEach(x => x.classList.remove('active'));
                     d.classList.add('active');
                     cert.style.backgroundImage = `url('bg${i}.png')`;
                 };
@@ -361,7 +399,16 @@
             if(grid.firstChild) grid.firstChild.click();
         }
 
-        // === 5. الطباعة ===
+        async function pickColor() {
+            if (!window.EyeDropper) { document.getElementById('inpColor').click(); return; }
+            try {
+                const res = await new EyeDropper().open();
+                document.getElementById('inpColor').value = res.sRGBHex;
+                applyStyle('color', res.sRGBHex);
+            } catch (e) {}
+        }
+
+        // === 4. الطباعة (Excel/PDF) ===
         function handleExcel(inp) {
             const reader = new FileReader();
             reader.onload = (e) => {
@@ -379,7 +426,7 @@
                     sel.appendChild(o);
                 });
                 document.getElementById('btnMass').disabled = false;
-                document.getElementById('btnMass').innerHTML = `<i class="ph ph-files"></i> طباعة (${excelData.length})`;
+                document.getElementById('btnMass').innerHTML = `<i class="ph ph-files"></i> طباعة الكل (${excelData.length})`;
             };
             reader.readAsBinaryString(inp.files[0]);
         }
@@ -407,6 +454,7 @@
             const elName = document.getElementById('el-name');
             const oldName = elName.innerText;
             l.style.display = 'flex';
+            
             for(let i=0; i<excelData.length; i++) {
                 const row = excelData[i];
                 const name = row[col];
@@ -417,7 +465,7 @@
             }
             elName.innerText = oldName;
             l.style.display = 'none';
-            alert('تم!');
+            alert('تم الانتهاء!');
         }
 
         function rgbToHex(rgb) {
