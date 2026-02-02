@@ -2,397 +2,430 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منشئ الشهادات المتقدم - GitHub Edition</title>
-    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>مصمم الشهادات الشامل</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+    
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <style>
         :root {
-            --primary: #195d48;
-            --secondary: #d4af37;
-            --bg-light: #f4f6f9;
-            --text: #333;
+            --primary: #4f46e5;
+            --surface: #ffffff;
+            --bg: #f8fafc;
+            --border: #e2e8f0;
+            --text: #334155;
+            --radius: 16px;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
 
         body {
-            font-family: 'Cairo', sans-serif;
-            background: var(--bg-light);
+            margin: 0; padding: 0;
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--bg);
             color: var(--text);
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: 350px 1fr;
-            gap: 20px;
-        }
-
-        /* --- لوحة التحكم الجانبية --- */
-        .sidebar {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            height: fit-content;
-        }
-
-        .sidebar h2 { font-size: 1.2rem; margin-bottom: 15px; color: var(--primary); border-bottom: 2px solid #eee; padding-bottom: 10px; }
-
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.9rem; }
-        .form-group input, .form-group select, .form-group textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-family: 'Cairo', sans-serif;
-        }
-        
-        /* شبكة اختيار الخلفيات */
-        .bg-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            margin-bottom: 20px;
-        }
-        .bg-option {
-            aspect-ratio: 1.41; /* A4 Ratio */
-            border: 2px solid #ddd;
-            border-radius: 4px;
-            cursor: pointer;
-            background-size: cover;
-            background-position: center;
-            transition: all 0.2s;
-        }
-        .bg-option:hover { border-color: var(--primary); }
-        .bg-option.selected { border-color: var(--secondary); box-shadow: 0 0 0 2px var(--secondary); }
-
-        /* منطقة رفع الملف */
-        .upload-area {
-            border: 2px dashed #ccc;
-            padding: 20px;
-            text-align: center;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-        .upload-area:hover { border-color: var(--primary); background: #f0fdf4; }
-
-        /* --- منطقة المعاينة --- */
-        .preview-area {
-            background: #ccc;
-            border-radius: 12px;
-            padding: 40px;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            overflow: auto;
-            min-height: 80vh;
-        }
-
-        /* حاوية الشهادة (A4 Landscape) */
-        .certificate-container {
-            width: 1123px; /* A4 width at 96 DPI approx */
-            height: 794px; /* A4 height */
-            background-color: white;
-            background-size: 100% 100%;
-            background-repeat: no-repeat;
-            position: relative;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            transform-origin: top center;
-            transition: transform 0.2s;
-        }
-
-        /* نصوص الشهادة */
-        .cert-content {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            text-align: center;
-            padding-top: 240px; /* مسافة من الأعلى لتجاوز ترويسة التصميم */
         }
 
-        .cert-intro { font-size: 24px; margin-bottom: 10px; color: #444; }
-        .cert-name { 
-            font-family: 'Amiri', serif; 
-            font-size: 55px; 
-            font-weight: bold; 
-            color: var(--primary); 
-            margin: 15px 0;
-            line-height: 1.2;
+        /* --- الهيدر --- */
+        header {
+            background: var(--surface);
+            padding: 15px 20px;
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            position: sticky; top: 0; z-index: 100;
         }
-        .cert-body { 
-            font-size: 26px; 
-            width: 80%; 
-            line-height: 1.6; 
-            color: #333; 
-            margin-bottom: 40px;
-        }
-        
-        .footer-section {
-            position: absolute;
-            bottom: 60px;
+        .brand { font-weight: 800; font-size: 1.2rem; color: var(--primary); display: flex; align-items: center; justify-content: center; gap: 8px; }
+
+        /* --- الحاوية الرئيسية --- */
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
             width: 100%;
             display: flex;
-            justify-content: space-around;
-            padding: 0 100px;
+            flex-direction: column;
+            gap: 30px;
         }
 
-        .signature { text-align: center; }
-        .sig-title { font-weight: bold; font-size: 24px; color: #555; margin-bottom: 10px; }
-        .sig-name { font-size: 28px; font-weight: bold; color: var(--primary); font-family: 'Amiri', serif; }
+        /* --- 1. قسم الأدوات --- */
+        .tools-section {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 25px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border);
+        }
 
-        .btn-action {
+        .section-header {
+            font-weight: 700; margin-bottom: 15px; color: #1e293b;
+            display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px;
+            margin-top: 15px;
+        }
+        .section-header:first-child { margin-top: 0; }
+
+        .grid-inputs {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        label { font-size: 0.85rem; font-weight: 600; color: #64748b; margin-bottom: 5px; display: block; }
+
+        input, select {
+            width: 100%; padding: 12px; border: 1px solid var(--border);
+            border-radius: 10px; font-family: inherit; font-size: 0.95rem;
+            background: #f8fafc; transition: 0.2s;
+        }
+        input:focus, select:focus { border-color: var(--primary); background: #fff; }
+
+        /* أزرار التحكم */
+        .controls-row {
+            display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 20px;
+        }
+        
+        .btn {
+            padding: 12px 20px; border: none; border-radius: 10px;
+            font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+            transition: 0.2s; flex: 1; min-width: 120px;
+        }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: #4338ca; }
+        .btn-tool { background: #f1f5f9; color: var(--text); border: 1px solid var(--border); padding: 10px; }
+        .btn-tool:hover { background: #e2e8f0; }
+
+        .color-picker-wrapper {
+            display: flex; align-items: center; gap: 5px; background: #f1f5f9;
+            padding: 5px 10px; border-radius: 10px; border: 1px solid var(--border);
+        }
+        input[type="color"] { width: 30px; height: 30px; padding: 0; border: none; background: none; cursor: pointer; }
+
+        /* شبكة الخلفيات */
+        .bg-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 8px; }
+        .bg-thumb {
+            aspect-ratio: 1.4; border-radius: 6px; cursor: pointer;
+            background-size: cover; border: 2px solid transparent; transition: 0.2s;
+        }
+        .bg-thumb.active { border-color: var(--primary); transform: scale(1.1); box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2); }
+
+        /* --- 2. قسم المعاينة --- */
+        .preview-section {
             width: 100%;
-            padding: 12px;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 1.1rem;
-            cursor: pointer;
-            margin-top: 10px;
+            display: flex;
+            justify-content: center;
+            position: relative;
         }
-        .btn-action:disabled { background: #ccc; cursor: not-allowed; }
-        .btn-action:hover:not(:disabled) { background: #144a39; }
 
-        /* شريط التقدم */
-        .progress-box { display: none; margin-top: 15px; }
-        .progress-bar { height: 10px; background: #eee; border-radius: 5px; overflow: hidden; }
-        .progress-fill { height: 100%; background: var(--secondary); width: 0%; transition: width 0.3s; }
-        .status-text { font-size: 0.9rem; text-align: center; margin-top: 5px; }
-
-        @media (max-width: 1200px) {
-            .container { grid-template-columns: 1fr; }
-            .certificate-container { transform: scale(0.6); margin-bottom: -300px; }
+        .scaler-wrapper {
+            transform-origin: top center;
+            transition: transform 0.2s ease;
+            box-shadow: 0 20px 50px -12px rgba(0,0,0,0.25);
         }
+
+        .certificate {
+            width: 1123px; height: 794px; /* A4 Landscape */
+            background: white; position: relative; overflow: hidden;
+            user-select: none;
+        }
+
+        .drag-el {
+            position: absolute; text-align: center; width: 100%;
+            cursor: grab; border: 2px dashed transparent;
+            line-height: 1.5; white-space: pre-wrap;
+        }
+        .drag-el.selected {
+            border-color: var(--primary); background: rgba(79, 70, 229, 0.05);
+        }
+
+        /* شاشة التحميل */
+        #loader {
+            position: fixed; inset: 0; background: rgba(255,255,255,0.95);
+            z-index: 999; display: none; flex-direction: column;
+            justify-content: center; align-items: center;
+        }
+        .spinner { font-size: 2.5rem; color: var(--primary); animation: spin 1s infinite linear; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="sidebar">
-        <h2>1. استيراد الأسماء (Excel)</h2>
-        <div class="upload-area" onclick="document.getElementById('fileInput').click()">
-            <p>📂 اضغط لرفع ملف Excel</p>
-            <input type="file" id="fileInput" accept=".xlsx,.xls" hidden>
+    <header>
+        <div class="brand">
+            <i class="ph ph-certificate"></i>
+            المصمم الذكي
         </div>
-        <div id="fileInfo" style="font-size: 0.9rem; color: green; display: none; margin-bottom: 10px;"></div>
+    </header>
 
-        <h2>2. اختر التصميم</h2>
-        <div class="bg-grid" id="bgGrid">
-            </div>
-
-        <h2>3. بيانات الشهادة</h2>
-        <div class="form-group">
-            <label>المقدمة (الجهة المانحة)</label>
-            <input type="text" id="inIntro" value="يسر إدارة مدرسة تحفيظ القرآن بالبجادية" class="live-update">
-        </div>
-        <div class="form-group">
-            <label>نص الشكر والسبب</label>
-            <textarea id="inBody" rows="3" class="live-update">أن تتقدم بوافر الشكر والتقدير لتفوقه في جميع المواد الدراسية خلال الفصل الدراسي الأول لعام ١٤٤٧ هـ</textarea>
-        </div>
-        <div class="form-group">
-            <label>المسمى الوظيفي للموقع</label>
-            <input type="text" id="inSigTitle" value="مدير المدرسة" class="live-update">
-        </div>
-        <div class="form-group">
-            <label>اسم الموقع (المدير/المعلم)</label>
-            <input type="text" id="inManager" value="أ. محمد بن عبدالله" class="live-update">
-        </div>
-
-        <h2>4. التصدير</h2>
-        <div class="form-group">
-            <label>عمود اسم الطالب (من ملف Excel)</label>
-            <select id="colSelect"><option>الرجاء رفع الملف أولاً</option></select>
-        </div>
-        <button id="btnGenerate" class="btn-action" onclick="generateAllPDFs()" disabled>🖨️ طباعة الشهادات (PDF)</button>
-
-        <div class="progress-box" id="progressBox">
-            <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
-            <div class="status-text" id="statusText">جاري التجهيز...</div>
-        </div>
-    </div>
-
-    <div class="preview-area">
-        <div class="certificate-container" id="certPreview">
-            <div class="cert-content">
-                <div class="cert-intro" id="outIntro">يسر إدارة مدرسة...</div>
-                <div class="cert-intro" style="margin-top:5px; font-size: 20px;">أن تمنح هذه الشهادة للطالب/ـة:</div>
-                <div class="cert-name" id="outName">اسم الطالب هنا</div>
-                <div class="cert-body" id="outBody">نص الشكر والتقدير سيظهر هنا...</div>
-            </div>
+    <div class="container">
+        
+        <section class="tools-section">
             
-            <div class="footer-section">
-                <div class="signature">
-                    <div class="sig-title">الختم</div>
-                    <div style="width: 120px; height: 120px; border: 2px dashed #ccc; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #ccc;">مكان الختم</div>
+            <div class="section-header"><i class="ph ph-pencil-simple-line"></i> نصوص الشهادة</div>
+            <div class="grid-inputs">
+                <div>
+                    <label>مقدمة الشهادة</label>
+                    <input type="text" value="يسر إدارة المدرسة تكريم" oninput="updateText('el-intro', this.value)">
                 </div>
-                <div class="signature">
-                    <div class="sig-title" id="outSigTitle">مدير المدرسة</div>
-                    <div class="sig-name" id="outManager">الاسم هنا</div>
+                <div>
+                    <label>اسم الطالب (الافتراضي)</label>
+                    <input type="text" id="inpName" value="خالد بن فهد العتيبي" oninput="updateText('el-name', this.value)">
+                </div>
+                <div style="grid-column: 1 / -1;">
+                    <label>نص الشكر / السبب</label>
+                    <input type="text" value="لتميزه وتفوقه في جميع المواد الدراسية" oninput="updateText('el-body', this.value)">
                 </div>
             </div>
-        </div>
+
+            <div class="section-header"><i class="ph ph-signature"></i> التوقيع والمدير</div>
+            <div class="grid-inputs">
+                <div>
+                    <label>المسمى الوظيفي</label>
+                    <input type="text" value="مدير المدرسة" oninput="updateText('el-mgr-title', this.value)">
+                </div>
+                <div>
+                    <label>اسم المدير</label>
+                    <input type="text" value="أ. محمد بن عبدالله" oninput="updateText('el-mgr-name', this.value)">
+                </div>
+            </div>
+            
+            <div class="section-header"><i class="ph ph-paint-brush"></i> التنسيق والتحريك</div>
+            <div class="controls-row">
+                <select id="elSelect" onchange="selectElement(this.value)" style="flex: 2;">
+                    <option value="el-name">🔹 اسم الطالب</option>
+                    <option value="el-intro">🔹 مقدمة الشهادة</option>
+                    <option value="el-body">🔹 نص الشكر</option>
+                    <option value="el-mgr-title">🔹 مسمى المدير</option>
+                    <option value="el-mgr-name">🔹 اسم المدير</option>
+                </select>
+                
+                <button class="btn btn-tool" onclick="move(0,-10)"><i class="ph ph-arrow-up"></i></button>
+                <button class="btn btn-tool" onclick="move(0,10)"><i class="ph ph-arrow-down"></i></button>
+                <button class="btn btn-tool" onclick="move(10,0)"><i class="ph ph-arrow-left"></i></button>
+                <button class="btn btn-tool" onclick="move(-10,0)"><i class="ph ph-arrow-right"></i></button>
+            </div>
+
+            <div class="controls-row">
+                <div class="color-picker-wrapper">
+                    <input type="color" id="inpColor" oninput="applyStyle('color', this.value)">
+                    <i class="ph ph-eyedropper" onclick="pickColor()" style="cursor: pointer; color: #666;" title="التقاط لون"></i>
+                </div>
+                
+                <input type="number" id="inpSize" placeholder="حجم الخط" style="width: 80px;" onchange="applyStyle('fontSize', this.value+'px')">
+                <button class="btn btn-tool" onclick="toggleBold()"><i class="ph ph-text-b"></i></button>
+            </div>
+
+            <div class="section-header"><i class="ph ph-image-square"></i> الخلفية</div>
+            <div class="bg-grid" id="bgGrid"></div>
+
+            <div style="margin-top: 25px; padding-top: 20px; border-top: 1px solid #f1f5f9;">
+                <label style="margin-bottom: 10px;">استيراد ملف Excel (للطباعة الجماعية)</label>
+                <div class="controls-row">
+                    <input type="file" accept=".xlsx" onchange="handleExcel(this)" style="background: white;">
+                    <select id="colSelect" style="display:none;"></select>
+                </div>
+                <div class="controls-row">
+                    <button class="btn btn-primary" onclick="printOne()"><i class="ph ph-printer"></i> طباعة (PDF)</button>
+                    <button class="btn btn-primary" style="background:#10b981;" id="btnMass" disabled onclick="printMass()">
+                        <i class="ph ph-files"></i> طباعة الكل
+                    </button>
+                </div>
+            </div>
+
+        </section>
+
+        <section class="preview-section" id="previewArea">
+            <div class="scaler-wrapper" id="scaler">
+                <div class="certificate" id="cert">
+                    
+                    <div id="el-intro" class="drag-el" style="top:220px; font-size:24px; color:#64748b;">يسر إدارة المدرسة تكريم</div>
+                    
+                    <div id="el-name" class="drag-el" style="top:270px; font-size:60px; font-family:'Amiri'; color:#4f46e5; font-weight:700;">خالد بن فهد العتيبي</div>
+                    
+                    <div id="el-body" class="drag-el" style="top:380px; font-size:30px; padding:0 120px; color:#334151;">لتميزه وتفوقه في جميع المواد الدراسية</div>
+                    
+                    <div id="el-mgr-title" class="drag-el" style="bottom:130px; left:100px; width:300px; font-size:24px; color:#64748b;">مدير المدرسة</div>
+                    <div id="el-mgr-name" class="drag-el" style="bottom:90px; left:100px; width:300px; font-size:28px; font-weight:700;">أ. محمد بن عبدالله</div>
+
+                </div>
+            </div>
+        </section>
+
     </div>
-</div>
 
-<div id="hidden-container" style="position: absolute; left: -9999px; top: 0;"></div>
+    <div id="loader">
+        <i class="ph ph-spinner spinner"></i>
+        <h3>جاري المعالجة...</h3>
+    </div>
 
-<script>
-    let excelData = [];
-    let selectedBg = 'bg1.png'; // الصورة الافتراضية
+    <script>
+        // === المتغيرات ===
+        let activeId = 'el-name';
+        let excelData = [];
+        const previewArea = document.getElementById('previewArea');
+        const scaler = document.getElementById('scaler');
+        const cert = document.getElementById('cert');
 
-    // 1. تهيئة الصور المصغرة
-    const bgGrid = document.getElementById('bgGrid');
-    for (let i = 1; i <= 12; i++) {
-        const div = document.createElement('div');
-        div.className = `bg-option ${i === 1 ? 'selected' : ''}`;
-        const imgName = `bg${i}.png`;
-        div.style.backgroundImage = `url('${imgName}')`;
-        div.onclick = () => selectBackground(div, imgName);
-        bgGrid.appendChild(div);
-    }
+        // === 1. التحجيم الذكي ===
+        function fitToWidth() {
+            const containerWidth = previewArea.clientWidth; 
+            const certWidth = 1123;
+            let scale = containerWidth / certWidth;
+            if (scale > 1) scale = 1;
 
-    function selectBackground(el, imgName) {
-        document.querySelectorAll('.bg-option').forEach(d => d.classList.remove('selected'));
-        el.classList.add('selected');
-        selectedBg = imgName;
-        document.getElementById('certPreview').style.backgroundImage = `url('${imgName}')`;
-    }
-
-    // تعيين الخلفية الافتراضية عند التحميل
-    document.getElementById('certPreview').style.backgroundImage = `url('${selectedBg}')`;
-
-    // 2. التحديث المباشر للنصوص (Live Update)
-    const inputs = document.querySelectorAll('.live-update');
-    inputs.forEach(input => {
-        input.addEventListener('input', updatePreview);
-    });
-
-    function updatePreview() {
-        document.getElementById('outIntro').textContent = document.getElementById('inIntro').value;
-        document.getElementById('outBody').textContent = document.getElementById('inBody').value;
-        document.getElementById('outSigTitle').textContent = document.getElementById('inSigTitle').value;
-        document.getElementById('outManager').textContent = document.getElementById('inManager').value;
-    }
-
-    // 3. معالجة ملف Excel
-    document.getElementById('fileInput').addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const data = new Uint8Array(e.target.result);
-            const workbook = XLSX.read(data, { type: 'array' });
-            const sheet = workbook.Sheets[workbook.SheetNames[0]];
-            const json = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-
-            if (json.length < 2) {
-                alert("الملف فارغ أو لا يحتوي بيانات كافية");
-                return;
-            }
-
-            // تخزين البيانات ومعالجة الرؤوس
-            const headers = json[0];
-            excelData = json.slice(1); // البيانات بدون الرأس
-
-            // تعبئة قائمة الأعمدة
-            const colSelect = document.getElementById('colSelect');
-            colSelect.innerHTML = '';
-            headers.forEach((h, i) => {
-                const opt = document.createElement('option');
-                opt.value = i;
-                opt.text = h || `عمود ${i+1}`;
-                if (h && h.includes('اسم')) opt.selected = true; // اختيار ذكي
-                colSelect.appendChild(opt);
-            });
-
-            document.getElementById('fileInfo').textContent = `تم تحميل ${excelData.length} سجل بنجاح ✅`;
-            document.getElementById('fileInfo').style.display = 'block';
-            document.getElementById('btnGenerate').disabled = false;
-        };
-        reader.readAsArrayBuffer(file);
-    });
-
-    // 4. توليد ملفات PDF (الجزء الأهم)
-    async function generateAllPDFs() {
-        const { jsPDF } = window.jspdf;
-        const btn = document.getElementById('btnGenerate');
-        const progressBox = document.getElementById('progressBox');
-        const progressFill = document.getElementById('progressFill');
-        const statusText = document.getElementById('statusText');
-        const hiddenContainer = document.getElementById('hidden-container');
-        const nameColIndex = document.getElementById('colSelect').value;
-
-        // قفل الزر
-        btn.disabled = true;
-        progressBox.style.display = 'block';
-
-        // نسخ القالب الحالي إلى الحاوية المخفية للريندر
-        // ملاحظة: نستخدم نسخة طبق الأصل لضمان الأبعاد
-        const templateHTML = document.getElementById('certPreview').outerHTML;
-
-        for (let i = 0; i < excelData.length; i++) {
-            const row = excelData[i];
-            const studentName = row[nameColIndex];
-
-            if (!studentName) continue;
-
-            // تحديث الواجهة
-            const percent = Math.round(((i + 1) / excelData.length) * 100);
-            progressFill.style.width = `${percent}%`;
-            statusText.textContent = `جاري استخراج شهادة: ${studentName} (${i+1}/${excelData.length})`;
-
-            // وضع القالب في الحاوية المخفية وتحديث الاسم
-            hiddenContainer.innerHTML = templateHTML;
-            const hiddenCert = hiddenContainer.querySelector('.certificate-container');
-            hiddenCert.id = "temp-cert"; // تغيير الـ ID لتجنب التعارض
-            hiddenCert.style.transform = "none"; // إلغاء التصغير
-            
-            // تحديث البيانات داخل النسخة المخفية
-            hiddenCert.querySelector('#outName').textContent = studentName;
-            // يمكن هنا إضافة منطق لاستخراج "السبب" من ملف الإكسل إذا وجد عمود مخصص
-
-            // انتظار تحميل الصورة (مهم جداً للصور المحلية)
-            await new Promise(resolve => setTimeout(resolve, 50));
-
-            // تحويل HTML إلى Canvas
-            const canvas = await html2canvas(hiddenCert, {
-                scale: 2, // دقة أعلى
-                useCORS: true,
-                allowTaint: true
-            });
-
-            // تحويل Canvas إلى PDF
-            const pdf = new jsPDF('l', 'mm', 'a4'); // Landscape A4
-            const imgData = canvas.toDataURL('image/jpeg', 0.9);
-            pdf.addImage(imgData, 'JPEG', 0, 0, 297, 210);
-            
-            // حفظ الملف
-            pdf.save(`شهادة_${studentName.replace(/\s/g, '_')}.pdf`);
+            scaler.style.transform = `scale(${scale})`;
+            scaler.style.height = `${794 * scale}px`;
+            scaler.style.width = `${1123 * scale}px`;
         }
 
-        // إنهاء
-        statusText.textContent = "✅ تم الانتهاء من جميع الشهادات!";
-        btn.disabled = false;
-        setTimeout(() => {
-             progressBox.style.display = 'none';
-             hiddenContainer.innerHTML = '';
-        }, 3000);
-    }
-</script>
+        window.addEventListener('resize', fitToWidth);
+        window.addEventListener('load', () => {
+            initBackgrounds();
+            fitToWidth();
+            selectElement('el-name');
+        });
 
+        // === 2. التحكم بالعناصر ===
+        function selectElement(id) {
+            document.querySelectorAll('.drag-el').forEach(e => e.classList.remove('selected'));
+            activeId = id;
+            const el = document.getElementById(id);
+            el.classList.add('selected');
+            document.getElementById('elSelect').value = id;
+
+            const st = window.getComputedStyle(el);
+            document.getElementById('inpSize').value = parseInt(st.fontSize);
+            document.getElementById('inpColor').value = rgbToHex(st.color);
+        }
+
+        function updateText(id, val) { 
+            const el = document.getElementById(id);
+            if(el) el.innerText = val; 
+        }
+        
+        function applyStyle(prop, val) { document.getElementById(activeId).style[prop] = val; }
+        
+        function toggleBold() {
+            const el = document.getElementById(activeId);
+            el.style.fontWeight = (el.style.fontWeight === 'bold' || el.style.fontWeight === '700') ? '400' : '700';
+        }
+
+        function move(x, y) {
+            const el = document.getElementById(activeId);
+            const st = window.getComputedStyle(el);
+            const m = new WebKitCSSMatrix(st.transform);
+            el.style.transform = `translate(${m.m41 + x}px, ${m.m42 + y}px)`;
+        }
+
+        document.querySelectorAll('.drag-el').forEach(el => {
+            el.addEventListener('mousedown', (e) => selectElement(e.target.id));
+            el.addEventListener('touchstart', (e) => selectElement(e.target.id), {passive: true});
+        });
+
+        // === 3. القطارة ===
+        async function pickColor() {
+            if (!window.EyeDropper) {
+                document.getElementById('inpColor').click();
+                return;
+            }
+            try {
+                const ed = new EyeDropper();
+                const res = await ed.open();
+                document.getElementById('inpColor').value = res.sRGBHex;
+                applyStyle('color', res.sRGBHex);
+            } catch (e) {}
+        }
+
+        // === 4. الخلفيات ===
+        function initBackgrounds() {
+            const grid = document.getElementById('bgGrid');
+            for(let i=1; i<=12; i++) {
+                const d = document.createElement('div');
+                d.className = 'bg-thumb';
+                d.style.backgroundImage = `url('bg${i}.png')`;
+                d.onclick = () => {
+                    document.querySelectorAll('.bg-thumb').forEach(x => x.classList.remove('active'));
+                    d.classList.add('active');
+                    cert.style.backgroundImage = `url('bg${i}.png')`;
+                };
+                grid.appendChild(d);
+            }
+            if(grid.firstChild) grid.firstChild.click();
+        }
+
+        // === 5. الطباعة ===
+        function handleExcel(inp) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const wb = XLSX.read(e.target.result, {type:'binary'});
+                const json = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], {header:1});
+                if(json.length < 2) return alert('الملف فارغ');
+                excelData = json.slice(1);
+                
+                const sel = document.getElementById('colSelect');
+                sel.innerHTML = ''; sel.style.display = 'block';
+                json[0].forEach((h, i) => {
+                    const o = document.createElement('option');
+                    o.value = i; o.text = h || `عمود ${i+1}`;
+                    if(h && h.includes('اسم')) o.selected = true;
+                    sel.appendChild(o);
+                });
+                document.getElementById('btnMass').disabled = false;
+                document.getElementById('btnMass').innerHTML = `<i class="ph ph-files"></i> طباعة (${excelData.length})`;
+            };
+            reader.readAsBinaryString(inp.files[0]);
+        }
+
+        async function genPDF(name) {
+            const sel = document.querySelector('.selected');
+            if(sel) sel.classList.remove('selected');
+            const canvas = await html2canvas(cert, { scale: 2, useCORS: true, backgroundColor: null });
+            const pdf = new window.jspdf.jsPDF('l', 'mm', 'a4');
+            pdf.addImage(canvas.toDataURL('image/jpeg', 0.95), 'JPEG', 0, 0, 297, 210);
+            pdf.save(name);
+            if(sel) sel.classList.add('selected');
+        }
+
+        async function printOne() {
+            document.getElementById('loader').style.display = 'flex';
+            await new Promise(r => setTimeout(r, 100));
+            await genPDF(`شهادة_${document.getElementById('inpName').value}.pdf`);
+            document.getElementById('loader').style.display = 'none';
+        }
+
+        async function printMass() {
+            const l = document.getElementById('loader');
+            const col = document.getElementById('colSelect').value;
+            const elName = document.getElementById('el-name');
+            const oldName = elName.innerText;
+            l.style.display = 'flex';
+            for(let i=0; i<excelData.length; i++) {
+                const row = excelData[i];
+                const name = row[col];
+                if(!name) continue;
+                elName.innerText = name;
+                await new Promise(r => setTimeout(r, 50));
+                await genPDF(`شهادة_${name}.pdf`);
+            }
+            elName.innerText = oldName;
+            l.style.display = 'none';
+            alert('تم!');
+        }
+
+        function rgbToHex(rgb) {
+            if(!rgb || rgb.startsWith('#')) return rgb || '#000000';
+            const m = rgb.match(/\d+/g);
+            if(!m) return '#000000';
+            return "#" + ((1<<24) + (parseInt(m[0])<<16) + (parseInt(m[1])<<8) + parseInt(m[2])).toString(16).slice(1);
+        }
+    </script>
 </body>
 </html>
